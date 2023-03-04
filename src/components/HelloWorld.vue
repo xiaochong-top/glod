@@ -1,58 +1,108 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+  <div id="hello"/>
 </template>
 
 <script>
+import * as echarts from 'echarts';
+import {DailyhqApi} from "@/axios/api";
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data(){
+    return {
+      // 从上海黄金交易所获取的数据
+      soursData:[]
+    }
+  },
+  computed:{
+    showData(){
+      const timeObj={
+        xAxis: {
+          // x轴每个点对应的数据
+          data: this.soursData.map(item=>item[0])
+        },
+        yAxis:[
+          // 如果不配置会丢失纵轴的自适应
+          {
+            scale: true,
+            splitArea: {
+              show: true
+            }
+          }
+        ],
+        series: [
+          {
+            type: 'candlestick',
+            // X轴上的每个点
+            data:this.soursData.map(item=>{
+              const timeArr=item.filter((item,index)=>index!=0)
+              return timeArr
+            })
+          }
+        ],
+        // 时间轴下方滑块
+        dataZoom: [
+          {
+            type: 'inside',
+            start: 0,
+            end: 100,
+            minValueSpan: 10
+          },
+          {
+            show: true,
+            type: 'slider',
+            bottom: 60,
+            // start: 90,
+            // end: 100,
+            minValueSpan: 10
+          }
+        ],
+        grid: [
+          {
+            left: '10%',
+            right: '8%',
+            bottom: 150
+          }
+        ]
+      }
+      return timeObj
+    }
+  },
+  created() {
+
+  },
+  mounted() {
+    this.PageUpdata()
+  },
+  updated(){
+
+
+  },
+  methods:{
+    PageUpdata(){
+      DailyhqApi({instid:'Au99.99'}).then(response=>{
+        if(response){
+          this.soursData.push(...response.time)
+          this.myChart = echarts.init(document.getElementById('hello'),'dark')
+          this.myChart.setOption(this.showData);
+        }
+      }).catch(msg=>{
+        console.log(msg)
+      })
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+#hello{
+  height: 100vh;
+  width: 100%;
+  /*border: 1px solid pink;*/
+  /*background-color: black;*/
 }
 </style>
