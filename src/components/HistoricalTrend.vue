@@ -1,5 +1,5 @@
 <template>
-  <div id="hello"/>
+  <div id="LineChart" :key="LineChart"/>
 </template>
 
 <script>
@@ -7,19 +7,22 @@ import * as echarts from 'echarts';
 import {DailyhqApi} from "@/axios/api";
 
 export default {
-  name: 'HelloWorld',
+  name: 'HistoricalTrend',
   props: {
     msg: String
   },
   data(){
     return {
       // 从上海黄金交易所获取的数据
-      soursData:[]
+      soursData:[],
+      // 历史折线图 dom KEY
+      LineChart:''
     }
   },
   computed:{
+    // 历史折线图的 echarts 配置对象
     showData(){
-      const timeObj={
+      return {
         xAxis: {
           // x轴每个点对应的数据
           data: this.soursData.map(item=>item[0])
@@ -55,8 +58,6 @@ export default {
             show: true,
             type: 'slider',
             bottom: 60,
-            // start: 90,
-            // end: 100,
             minValueSpan: 10
           }
         ],
@@ -68,41 +69,35 @@ export default {
           }
         ]
       }
-      return timeObj
     }
   },
-  created() {
-
-  },
   mounted() {
-    this.PageUpdata()
-  },
-  updated(){
-
-
+    const _this=this
+    this.getData().then(()=>_this.updataShow())
   },
   methods:{
-    PageUpdata(){
-      DailyhqApi({instid:'Au99.99'}).then(response=>{
-        if(response){
-          this.soursData.push(...response.time)
-          this.myChart = echarts.init(document.getElementById('hello'),'dark')
-          this.myChart.setOption(this.showData);
-        }
-      }).catch(msg=>{
-        console.log(msg)
+    // 获取上海黄金交易所的历史数据
+    async getData(){
+      await DailyhqApi({instid:'Au99.99'}).then(response=>{
+        if(response){this.soursData.push(...response.time)}
+      }).catch(msg=>{console.log(msg)})
+    },
+    // 更新视图
+    updataShow(){
+      // echar 视图不会随浏览器窗口改变而改变，每次更新需要重新定义KEY 值用于跟新dom
+      this.LineChart=Math.random()
+      this.$nextTick(()=>{
+        this.myChart = echarts.init(document.getElementById('LineChart'),'dark')
+        this.myChart.setOption(this.showData);
       })
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#hello{
+#LineChart{
   height: 100vh;
   width: 100%;
-  /*border: 1px solid pink;*/
-  /*background-color: black;*/
 }
 </style>
