@@ -7,3 +7,11 @@ export function DailyhqApi(query) {
         params:query
     })
 }
+
+export function QuotationsApi(query) {
+    return request({
+        url: '/graph/quotations',
+        method: 'post',
+        params:query
+    })
+}
