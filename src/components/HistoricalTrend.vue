@@ -4,7 +4,6 @@
 
 <script>
 import * as echarts from 'echarts';
-import {DailyhqApi} from "@/axios/api";
 
 export default {
   name: 'HistoricalTrend',
@@ -13,8 +12,6 @@ export default {
   },
   data(){
     return {
-      // 从上海黄金交易所获取的数据
-      soursData:[],
       // 历史折线图 dom KEY
       LineChart:''
     }
@@ -25,7 +22,7 @@ export default {
       return {
         xAxis: {
           // x轴每个点对应的数据
-          data: this.soursData.map(item=>item[0])
+          data: this.$store.state.historyData.map(item=>item[0])
         },
         yAxis:[
           // 如果不配置会丢失纵轴的自适应
@@ -41,7 +38,7 @@ export default {
             // k线图
             type: 'candlestick',
             // X轴上的每个点
-            data:this.soursData.map(item=>{
+            data:this.$store.state.historyData.map(item=>{
               const timeArr=item.filter((item,index)=>index!=0)
               return timeArr
             })
@@ -82,22 +79,19 @@ export default {
   },
   mounted() {
     const _this=this
-    this.getData().then(()=>_this.updataShow())
+    this.$store.dispatch('getHistoryData').then(()=>{
+      _this.updataShow()
+    }
+    )
   },
   methods:{
-    // 获取上海黄金交易所的历史数据
-    async getData(){
-      await DailyhqApi({instid:'Au99.99'}).then(response=>{
-        if(response){this.soursData.push(...response.time)}
-      }).catch(msg=>{console.log(msg)})
-    },
     // 更新视图
     updataShow(){
       // echar 视图不会随浏览器窗口改变而改变，每次更新需要重新定义KEY 值用于跟新dom
       this.LineChart=Math.random()
       this.$nextTick(()=>{
-        // this.myChart = echarts.init(document.getElementById('LineChart'),'dark')
-        this.myChart = echarts.init(this.$refs.LineChart,'dark')
+        // this.myChart = echarts.init(this.$refs.LineChart,'dark')
+        this.myChart = echarts.init(this.$refs.LineChart)
         this.myChart.setOption(this.showData);
       })
     }

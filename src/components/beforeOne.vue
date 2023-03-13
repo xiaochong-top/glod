@@ -4,7 +4,6 @@
 
 <script>
 import * as echarts from 'echarts';
-import {QuotationsApi} from "@/axios/api";
 
 export default {
   name: 'HistoricalTrend',
@@ -13,9 +12,6 @@ export default {
   },
   data(){
     return {
-      // 从上海黄金交易所获取的数据
-      times:[],
-      data:[],
       // 历史折线图 dom KEY
       LineChart:''
     }
@@ -26,7 +22,7 @@ export default {
       return {
         xAxis: {
           // 每个点对应的Y值
-          data: this.times
+          data:this.$store.state.todayData.map(item=>item[0])
         },
         yAxis:[
           // 如果不配置会丢失纵轴的自适应
@@ -42,7 +38,7 @@ export default {
             // 折线图
             type: 'line',
             // X轴上的每个点
-            data:this.data,
+            data:this.$store.state.todayData.map(item=>item[1]),
             // 填充线下面积，折线图变面积图
             areaStyle: {}
           }
@@ -81,45 +77,23 @@ export default {
     }
   },
   mounted() {
-    const _this=this
-    this.getData().then(()=>_this.updataShow())
-    setInterval(()=>{
-      this.getData().then(()=>_this.updataShow())
-    },30000)
-
-
+    setInterval(this.dataToPage(),10000)
   },
   methods:{
-    // 获取上海黄金交易所的历史数据
-    async getData(){
-      await QuotationsApi({instid:'Au99.99'}).then(response=>{
-        if(response){
-          let flg=true
-          let timeArr=response.data.reverse().filter((item,index,arr)=>{
-            if(flg==false || index==0 ){
-              return true
-            }else if(item!=arr[0]){
-              flg=false
-              return true
-            }else{
-              return false
-            }
-          })
-          timeArr.reverse()
-          timeArr.pop()
-          this.data=[]
-          this.data.push(...timeArr)
-          this.times=[]
-          this.times.push(...response.times.slice(0,timeArr.length))
-        }
-      }).catch(msg=>{console.log(msg)})
+    // 从状态管理获取数据，并更新到页面
+    dataToPage(){
+      const _this=this
+      this.$store.dispatch('getTodayData').then(()=>{
+        _this.updataShow()
+      })
+      return this.dataToPage
     },
     // 更新视图
     updataShow(){
       // echar 视图不会随浏览器窗口改变而改变，每次更新需要重新定义KEY 值用于跟新dom
       this.LineChart=Math.ceil(Math.random()*1000)
       this.$nextTick(()=>{
-        this.myChart = echarts.init(this.$refs.LineChart,'dark')
+        this.myChart = echarts.init(this.$refs.LineChart)
         this.myChart.setOption(this.showData);
       })
     }

@@ -1,6 +1,6 @@
 import request from './index'
 
-export function DailyhqApi(query) {
+export function historyDataApi(query) {
     return request({
         url: '/graph/Dailyhq',
         method: 'post',
@@ -8,7 +8,7 @@ export function DailyhqApi(query) {
     })
 }
 
-export function QuotationsApi(query) {
+export function todayDataApi(query) {
     return request({
         url: '/graph/quotations',
         method: 'post',
