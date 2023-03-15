@@ -22,7 +22,7 @@ export default {
       return {
         xAxis: {
           // x轴每个点对应的数据
-          data: this.$store.state.historyData.map(item=>item[0])
+          data: this.$store.getters.showhistoryData.map(item=>item[0])
         },
         yAxis:[
           // 如果不配置会丢失纵轴的自适应
@@ -38,7 +38,7 @@ export default {
             // k线图
             type: 'candlestick',
             // X轴上的每个点
-            data:this.$store.state.historyData.map(item=>{
+            data:this.$store.getters.showhistoryData.map(item=>{
               const timeArr=item.filter((item,index)=>index!=0)
               return timeArr
             })
@@ -74,6 +74,13 @@ export default {
             bottom: 150
           }
         ]
+      }
+    }
+  },
+  watch:{
+    "$store.state.data":{
+      handler(){
+        this.updataShow()
       }
     }
   },

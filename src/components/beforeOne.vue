@@ -22,7 +22,7 @@ export default {
       return {
         xAxis: {
           // 每个点对应的Y值
-          data:this.$store.state.todayData.map(item=>item[0])
+          data:this.$store.getters.showtodayData.map(item=>item[0])
         },
         yAxis:[
           // 如果不配置会丢失纵轴的自适应
@@ -38,7 +38,7 @@ export default {
             // 折线图
             type: 'line',
             // X轴上的每个点
-            data:this.$store.state.todayData.map(item=>item[1]),
+            data:this.$store.getters.showtodayData.map(item=>item[1]),
             // 填充线下面积，折线图变面积图
             areaStyle: {}
           }

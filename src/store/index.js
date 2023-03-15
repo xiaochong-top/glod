@@ -5,7 +5,26 @@ export default createStore({
     state: {
         // 从上海黄金交易所获取的历史数据
         historyData:[],
-        todayData:[]
+        todayData:[],
+        data:0,
+        tiem:0
+    },
+    getters:{
+        showhistoryData(state){
+            if(state.data==0){
+                return state.historyData
+            }else if(state.data==1){
+                return state.historyData.slice(-(52*5*3))
+            }else if(state.data==2){
+                return state.historyData.slice(-(52*5))
+            }else if(state.data==3){
+                return state.historyData.slice(-66)
+            }
+        },
+        showtodayData(state){
+            // let now=new Date().getTime()
+            return state.todayData
+        }
     },
     mutations: {
         SETHISTORYDATA(state,val){
@@ -13,6 +32,12 @@ export default createStore({
         },
         SETTODAYDATA(state,val){
             state.todayData=val
+        },
+        SETDATA(state,val){
+            state.data=val
+        },
+        SETTIME(state,val){
+            state.time=val
         }
     },
     actions: {

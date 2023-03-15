@@ -10,12 +10,7 @@
 
     </div>
     <div class="right">
-      <div class="top">
-        <HistoricalTrend  ref="HistoricalTrend3"/>
-      </div>
-      <div class="bottom">
-        <HistoricalTrend  ref="HistoricalTrend4"/>
-      </div>
+      <OpacityBox/>
     </div>
   </div>
 </template>
@@ -23,10 +18,12 @@
 <script>
 import HistoricalTrend from './components/HistoricalTrend.vue'
 import beforeOne from "@/components/beforeOne";
+import OpacityBox from "@/components/OpacityBox.vue";
 
 export default {
   name: 'App',
   components: {
+    OpacityBox,
     HistoricalTrend,
     beforeOne
   },
@@ -37,8 +34,6 @@ export default {
     resizeFun(){
       this.$refs.HistoricalTrend.updataShow()
       this.$refs.HistoricalTrend2.updataShow()
-      this.$refs.HistoricalTrend3.updataShow()
-      this.$refs.HistoricalTrend4.updataShow()
     }
   }
 }
